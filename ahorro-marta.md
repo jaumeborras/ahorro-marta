@@ -53,3 +53,4 @@ Cards de 1/3/5 años con interés compuesto al 3% anual. Simulador de ahorro ext
 | Fecha | Descripción |
 |-------|-------------|
 | 2026-03-26 | Commit inicial: app de ahorro personal para Marta con diseño Revolut+Apple, localStorage, planificador de viajes y simulador de hipoteca |
+| 2026-03-26 | Cambiar tema a claro: fondo blanco, cards con sombra sutil, paleta de colores adaptada para fondo claro |
