@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ahorro · Marta</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-0: #070912;
+      --bg-1: #0F1221;
+      --bg-2: #181D30;
+      --bg-3: #21273D;
+      --accent: #7C5CFC;
+      --accent-light: #9B7DFF;
+      --accent-glow: rgba(124,92,252,0.18);
+      --green: #00C9A7;
+      --green-dim: rgba(0,201,167,0.12);
+      --red: #FF4757;
+      --red-dim: rgba(255,71,87,0.12);
+      --amber: #FFAA00;
+      --amber-dim: rgba(255,170,0,0.12);
+      --text-1: #EEF0FF;
+      --text-2: #7B85A8;
+      --text-3: #3D4460;
+      --border: rgba(255,255,255,0.07);
+      --r-xl: 24px;
+      --r-lg: 18px;
+      --r-md: 12px;
+      --r-sm: 8px;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg-0);
+      color: var(--text-1);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100dvh;
+    }
+
+    ::-webkit-scrollbar { width: 0; }
+
+    /* ── Header ── */
+    .header {
+      padding: 52px 20px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-0);
+      transition: padding 0.3s ease;
+    }
+    .header.compact { padding-top: 16px; }
+
+    .header-left { display: flex; flex-direction: column; }
+    .header-greeting { font-size: 13px; color: var(--text-2); font-weight: 500; letter-spacing: 0.4px; }
+    .header-name {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #EEF0FF 0%, #9B7DFF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header.compact .header-greeting { display: none; }
+    .header.compact .header-name { font-size: 20px; }
+
+    .date-widget {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 5px 10px;
+      min-width: 42px;
+    }
+    .date-month { font-size: 9px; font-weight: 700; color: var(--text-2); letter-spacing: 1.5px; text-transform: uppercase; }
+    .date-day { font-size: 22px; font-weight: 700; color: var(--red); line-height: 1.1; }
+
+    /* ── Nav ── */
+    .nav {
+      display: flex;
+      padding: 0 16px 10px;
+      gap: 2px;
+      background: var(--bg-0);
+      position: sticky;
+      top: 68px;
+      z-index: 99;
+    }
+    .nav-tab {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 7px 4px;
+      border-radius: var(--r-md);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--text-3);
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .nav-tab.active { background: var(--accent-glow); color: var(--accent-light); }
+    .nav-tab svg { width: 19px; height: 19px; stroke-width: 1.8; }
+    .nav-tab span { font-size: 9.5px; font-weight: 600; letter-spacing: 0.2px; }
+
+    /* ── Content ── */
+    .content { flex: 1; overflow-y: auto; padding: 6px 16px 100px; }
+    @supports (padding: max(0px)) {
+      .content { padding-bottom: max(100px, calc(80px + env(safe-area-inset-bottom))); }
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 18px;
+      margin-bottom: 10px;
+    }
+    .card-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-2);
+      margin-bottom: 14px;
+    }
+
+    /* ── Metrics ── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .metric-card {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 14px 14px 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .metric-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      border-radius: 2px 2px 0 0;
+    }
+    .metric-card.income::after  { background: var(--green); }
+    .metric-card.expenses::after { background: var(--red); }
+    .metric-card.savings::after  { background: var(--accent); }
+    .metric-card.free::after     { background: var(--amber); }
+
+    .metric-icon { font-size: 16px; margin-bottom: 6px; }
+    .metric-label { font-size: 10.5px; color: var(--text-2); font-weight: 500; margin-bottom: 3px; }
+    .metric-value { font-size: 19px; font-weight: 700; letter-spacing: -0.5px; }
+    .metric-card.income .metric-value   { color: var(--green); }
+    .metric-card.expenses .metric-value { color: var(--red); }
+    .metric-card.savings .metric-value  { color: var(--accent-light); }
+    .metric-card.free .metric-value     { color: var(--amber); }
+
+    /* ── Inputs ── */
+    .input-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .input-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .input-row:first-of-type { padding-top: 0; }
+    .input-row-label { font-size: 14px; color: var(--text-1); font-weight: 500; }
+    .input-row-sub { font-size: 11.5px; color: var(--text-2); margin-top: 2px; }
+
+    .amount-input {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      color: var(--text-1);
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 7px 11px;
+      width: 115px;
+      text-align: right;
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+      flex-shrink: 0;
+    }
+    .amount-input:focus { border-color: var(--accent); background: var(--bg-2); }
+    .amount-input::-webkit-outer-spin-button,
+    .amount-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .amount-input[type=number] { -moz-appearance: textfield; }
+
+    /* ── Segmented Control ── */
+    .segmented {
+      display: flex;
+      background: var(--bg-2);
+      border-radius: var(--r-md);
+      padding: 3px;
+      gap: 2px;
+      margin-bottom: 14px;
+    }
+    .seg-btn {
+      flex: 1;
+      padding: 7px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--text-2);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .seg-btn.active {
+      background: var(--bg-3);
+      color: var(--text-1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    }
+
+    /* ── Goal toggle ── */
+    .goal-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
+    .goal-btn {
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-2);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .goal-btn.active {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: var(--accent-light);
+    }
+
+    /* ── Expense list ── */
+    .expense-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+      animation: fadeIn 0.2s ease;
+    }
+    .expense-row:last-of-type { border-bottom: none; }
+
+    .category-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-1);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      outline: none;
+      min-width: 0;
+    }
+    .category-input::placeholder { color: var(--text-3); }
+
+    .exp-amount-input {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      color: var(--text-1);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 5px 9px;
+      width: 86px;
+      text-align: right;
+      outline: none;
+      transition: border-color 0.2s;
+      flex-shrink: 0;
+      -webkit-appearance: none;
+    }
+    .exp-amount-input:focus { border-color: var(--accent); }
+    .exp-amount-input::-webkit-outer-spin-button,
+    .exp-amount-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .exp-amount-input[type=number] { -moz-appearance: textfield; }
+
+    .delete-btn {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: none;
+      background: var(--red-dim);
+      color: var(--red);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .delete-btn:hover { background: var(--red); color: white; }
+
+    .add-row-btn {
+      width: 100%;
+      padding: 11px;
+      border: 1.5px dashed var(--text-3);
+      border-radius: var(--r-md);
+      background: transparent;
+      color: var(--text-2);
+      font-family: inherit;
+      font-size: 13.5px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+    .add-row-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent-light);
+      background: var(--accent-glow);
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0 2px;
+      margin-top: 4px;
+      border-top: 1px solid var(--border);
+    }
+    .total-label { font-size: 12px; font-weight: 600; color: var(--text-2); }
+    .total-value { font-size: 18px; font-weight: 700; color: var(--text-1); }
+
+    /* ── Slider ── */
+    .slider-wrap { padding: 2px 0; }
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-2);
+      margin-bottom: 8px;
+    }
+    .slider-val { color: var(--accent-light); font-weight: 700; }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      background: var(--bg-3);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 0 5px var(--accent-glow);
+      transition: box-shadow 0.2s;
+    }
+    input[type=range]::-webkit-slider-thumb:active { box-shadow: 0 0 0 9px var(--accent-glow); }
+
+    /* ── Trip cards ── */
+    .trip-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 16px;
+      margin-bottom: 10px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeIn 0.3s ease;
+    }
+    .trip-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(to bottom, var(--accent), var(--green));
+      border-radius: 0 2px 2px 0;
+    }
+    .trip-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .trip-name-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-1);
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      outline: none;
+    }
+    .trip-name-input::placeholder { color: var(--text-3); }
+    .trip-del {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-3);
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+    }
+    .trip-del:hover { color: var(--red); }
+
+    .trip-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .trip-field label {
+      display: block;
+      font-size: 10px;
+      color: var(--text-2);
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .trip-field input {
+      width: 100%;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      color: var(--text-1);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 7px 10px;
+      outline: none;
+      -webkit-appearance: none;
+      transition: border-color 0.2s;
+    }
+    .trip-field input:focus { border-color: var(--accent); }
+    .trip-field input::-webkit-outer-spin-button,
+    .trip-field input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .trip-field input[type=number] { -moz-appearance: textfield; }
+    .trip-field input[type=date] { color-scheme: dark; }
+
+    .countdown {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+    .cd-unit {
+      background: var(--bg-1);
+      border-radius: var(--r-sm);
+      padding: 8px 4px;
+      text-align: center;
+    }
+    .cd-num { font-size: 20px; font-weight: 700; color: var(--accent-light); line-height: 1; }
+    .cd-lbl { font-size: 9px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
+
+    .trip-progress-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-2);
+      margin: 10px 0 5px;
+    }
+    .progress-bar-bg {
+      height: 5px;
+      background: var(--bg-3);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+      transition: width 0.5s ease;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 36px 20px;
+      color: var(--text-2);
+    }
+    .empty-state-icon { font-size: 38px; margin-bottom: 10px; }
+    .empty-state-text { font-size: 14px; line-height: 1.6; }
+
+    /* ── Projection ── */
+    .proj-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .proj-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 12px;
+      text-align: center;
+    }
+    .proj-years { font-size: 11px; color: var(--text-2); font-weight: 600; margin-bottom: 4px; }
+    .proj-amount { font-size: 17px; font-weight: 700; color: var(--green); letter-spacing: -0.5px; }
+    .proj-sub { font-size: 10px; color: var(--text-3); margin-top: 3px; }
+
+    /* ── Mortgage ── */
+    .mort-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .mort-res-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 13px;
+    }
+    .mort-res-lbl { font-size: 11px; color: var(--text-2); font-weight: 500; margin-bottom: 5px; }
+    .mort-res-val { font-size: 19px; font-weight: 700; letter-spacing: -0.5px; }
+    .mort-res-val.c-accent { color: var(--accent-light); }
+    .mort-res-val.c-green  { color: var(--green); }
+    .mort-res-val.c-red    { color: var(--red); }
+    .mort-res-val.c-amber  { color: var(--amber); }
+
+    .alert-banner {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 11px 14px;
+      border-radius: var(--r-md);
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+    .alert-banner.ok      { background: var(--green-dim); color: var(--green); border: 1px solid rgba(0,201,167,0.2); }
+    .alert-banner.warning { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(255,170,0,0.2); }
+    .alert-banner.danger  { background: var(--red-dim);   color: var(--red);   border: 1px solid rgba(255,71,87,0.2); }
+
+    .select-input {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      color: var(--text-1);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 7px 11px;
+      outline: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .select-input:focus { border-color: var(--accent); }
+
+    /* ── Animations ── */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes countUp {
+      from { opacity: 0.4; transform: translateY(3px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header" id="mainHeader">
+    <div class="header-left">
+      <span class="header-greeting">Bienvenida,</span>
+      <span class="header-name">Marta 👋</span>
+    </div>
+    <div class="date-widget">
+      <span class="date-month" id="dateMonth">---</span>
+      <span class="date-day" id="dateDay">--</span>
+    </div>
+  </header>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <button class="nav-tab active" onclick="showTab('inicio',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      <span>Inicio</span>
+    </button>
+    <button class="nav-tab" onclick="showTab('gastos',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span>Gastos</span>
+    </button>
+    <button class="nav-tab" onclick="showTab('viajes',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21 4 19.5 2.5S18 2 16.5 3.5L13 7 4.8 5.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+      <span>Viajes</span>
+    </button>
+    <button class="nav-tab" onclick="showTab('proyeccion',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>Proyección</span>
+    </button>
+    <button class="nav-tab" onclick="showTab('hipoteca',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Hipoteca</span>
+    </button>
+  </nav>
+
+  <main class="content" id="mainContent">
+
+    <!-- ═══ TAB: INICIO ═══ -->
+    <div class="tab-panel active" id="tab-inicio">
+
+      <div class="metrics-grid">
+        <div class="metric-card income">
+          <div class="metric-icon">💰</div>
+          <div class="metric-label">Ingresos</div>
+          <div class="metric-value" id="m-income">0 €</div>
+        </div>
+        <div class="metric-card expenses">
+          <div class="metric-icon">💸</div>
+          <div class="metric-label">Gastos</div>
+          <div class="metric-value" id="m-expenses">0 €</div>
+        </div>
+        <div class="metric-card savings">
+          <div class="metric-icon">🔒</div>
+          <div class="metric-label">Ahorro mensual</div>
+          <div class="metric-value" id="m-savings">0 €</div>
+        </div>
+        <div class="metric-card free">
+          <div class="metric-icon">✨</div>
+          <div class="metric-label">Libre</div>
+          <div class="metric-value" id="m-free">0 €</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Ingreso mensual neto</div>
+        <div class="input-row" style="border:none; padding-bottom:0;">
+          <div>
+            <div class="input-row-label">Sueldo neto</div>
+            <div class="input-row-sub">Lo que entra cada mes</div>
+          </div>
+          <input type="number" class="amount-input" id="income" inputmode="decimal" placeholder="0" min="0">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Objetivo de ahorro</div>
+        <div class="goal-toggle">
+          <button class="goal-btn active" id="goal-pct-btn" onclick="setGoalMode('percent')">% ingresos</button>
+          <button class="goal-btn" id="goal-fix-btn" onclick="setGoalMode('fixed')">Cantidad fija</button>
+        </div>
+        <div class="input-row" style="border:none; padding-bottom:0; padding-top:0;">
+          <div>
+            <div class="input-row-label" id="goal-lbl">Porcentaje a ahorrar</div>
+            <div class="input-row-sub" id="goal-sub">Regla 50/30/20 recomendada</div>
+          </div>
+          <input type="number" class="amount-input" id="goalValue" inputmode="decimal" placeholder="20" min="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: GASTOS ═══ -->
+    <div class="tab-panel" id="tab-gastos">
+      <div class="segmented">
+        <button class="seg-btn active" id="seg-fixed" onclick="setExpTab('fixed')">Gastos fijos</button>
+        <button class="seg-btn" id="seg-var" onclick="setExpTab('variable')">Gastos variables</button>
+      </div>
+
+      <div class="card" id="fixed-panel">
+        <div class="card-label">Gastos fijos</div>
+        <div id="fixed-list"></div>
+        <button class="add-row-btn" onclick="addExpense('fixed')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Añadir gasto fijo
+        </button>
+        <div class="total-row">
+          <span class="total-label">Total fijos</span>
+          <span class="total-value" id="total-fixed">0 €</span>
+        </div>
+      </div>
+
+      <div class="card" id="variable-panel" style="display:none;">
+        <div class="card-label">Gastos variables</div>
+        <div id="variable-list"></div>
+        <button class="add-row-btn" onclick="addExpense('variable')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Añadir gasto variable
+        </button>
+        <div class="total-row">
+          <span class="total-label">Total variables</span>
+          <span class="total-value" id="total-variable">0 €</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: VIAJES ═══ -->
+    <div class="tab-panel" id="tab-viajes">
+      <div class="card">
+        <div class="card-label">Asignación para viajes</div>
+        <div class="slider-wrap">
+          <div class="slider-labels">
+            <span>Del dinero libre</span>
+            <span class="slider-val" id="trip-pct-lbl">30%</span>
+          </div>
+          <input type="range" id="trip-pct" min="0" max="100" value="30" oninput="onTripPct(this.value)">
+          <div style="margin-top:10px; font-size:13px; color:var(--text-2);">
+            Presupuesto mensual: <strong id="trip-budget-val" style="color:var(--accent-light)">0 €</strong>
+          </div>
+        </div>
+      </div>
+
+      <div id="trips-list"></div>
+
+      <button class="add-row-btn" onclick="addTrip()" style="margin-bottom:10px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Añadir destino
+      </button>
+    </div>
+
+    <!-- ═══ TAB: PROYECCIÓN ═══ -->
+    <div class="tab-panel" id="tab-proyeccion">
+      <div class="card">
+        <div class="card-label">Proyección de ahorro</div>
+        <div style="font-size:13px; color:var(--text-2); margin-bottom:14px;">
+          Con <strong id="proj-monthly" style="color:var(--accent-light)">0 €/mes</strong> al 3% de interés anual:
+        </div>
+        <div class="proj-grid">
+          <div class="proj-card">
+            <div class="proj-years">1 año</div>
+            <div class="proj-amount" id="p1y">0 €</div>
+            <div class="proj-sub" id="p1y-i">+0 € intereses</div>
+          </div>
+          <div class="proj-card">
+            <div class="proj-years">3 años</div>
+            <div class="proj-amount" id="p3y">0 €</div>
+            <div class="proj-sub" id="p3y-i">+0 € intereses</div>
+          </div>
+          <div class="proj-card">
+            <div class="proj-years">5 años</div>
+            <div class="proj-amount" id="p5y">0 €</div>
+            <div class="proj-sub" id="p5y-i">+0 € intereses</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">¿Y si ahorro un poco más?</div>
+        <div class="slider-wrap">
+          <div class="slider-labels">
+            <span>Ahorro extra mensual</span>
+            <span class="slider-val" id="extra-lbl">+0 €</span>
+          </div>
+          <input type="range" id="extra-range" min="0" max="1000" value="0" step="25" oninput="onExtra(this.value)">
+        </div>
+        <div style="margin-top:14px;">
+          <div class="proj-grid">
+            <div class="proj-card">
+              <div class="proj-years">1 año</div>
+              <div class="proj-amount" id="ex1y">0 €</div>
+            </div>
+            <div class="proj-card">
+              <div class="proj-years">3 años</div>
+              <div class="proj-amount" id="ex3y">0 €</div>
+            </div>
+            <div class="proj-card">
+              <div class="proj-years">5 años</div>
+              <div class="proj-amount" id="ex5y">0 €</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: HIPOTECA ═══ -->
+    <div class="tab-panel" id="tab-hipoteca">
+
+      <div class="card">
+        <div class="card-label">El piso</div>
+        <div class="input-row">
+          <div>
+            <div class="input-row-label">Precio del piso</div>
+            <div class="input-row-sub">Precio de compra</div>
+          </div>
+          <input type="number" class="amount-input" id="mort-price" inputmode="decimal" placeholder="250000" min="0" step="1000" oninput="calcMortgage()">
+        </div>
+        <div class="input-row">
+          <div>
+            <div class="input-row-label">Ahorro actual</div>
+            <div class="input-row-sub">Lo que tienes ahorrado ya</div>
+          </div>
+          <input type="number" class="amount-input" id="mort-saved" inputmode="decimal" placeholder="0" min="0" step="500" oninput="calcMortgage()">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Condiciones</div>
+        <div class="input-row" style="flex-direction: column; align-items: stretch; gap: 8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div class="input-row-label">Entrada requerida</div>
+              <div class="input-row-sub">Banco 20% + ~10% gastos notaría</div>
+            </div>
+            <span id="mort-dp-lbl" style="color:var(--accent-light); font-weight:700; font-size:17px;">30%</span>
+          </div>
+          <input type="range" id="mort-dp" min="10" max="50" value="30" step="1" oninput="onMortDp(this.value)">
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-3);">
+            <span>10%</span><span>50%</span>
+          </div>
+        </div>
+        <div class="input-row">
+          <div>
+            <div class="input-row-label">Tipo de interés</div>
+            <div class="input-row-sub">Tasa anual</div>
+          </div>
+          <input type="number" class="amount-input" id="mort-rate" inputmode="decimal" placeholder="3.5" min="0" max="20" step="0.1" oninput="calcMortgage()" style="width:90px;">
+        </div>
+        <div class="input-row">
+          <div>
+            <div class="input-row-label">Plazo</div>
+            <div class="input-row-sub">Años de hipoteca</div>
+          </div>
+          <select class="select-input" id="mort-years" onchange="calcMortgage()">
+            <option value="15">15 años</option>
+            <option value="20">20 años</option>
+            <option value="25">25 años</option>
+            <option value="30" selected>30 años</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Análisis</div>
+        <div id="mort-alert"></div>
+        <div class="mort-grid">
+          <div class="mort-res-card">
+            <div class="mort-res-lbl">Necesitas para entrar</div>
+            <div class="mort-res-val c-accent" id="res-needed">—</div>
+          </div>
+          <div class="mort-res-card">
+            <div class="mort-res-lbl">Te falta ahorrar</div>
+            <div class="mort-res-val c-red" id="res-missing">—</div>
+          </div>
+          <div class="mort-res-card">
+            <div class="mort-res-lbl">Cuota mensual</div>
+            <div class="mort-res-val c-green" id="res-payment">—</div>
+          </div>
+          <div class="mort-res-card">
+            <div class="mort-res-lbl">Lo alcanzas en</div>
+            <div class="mort-res-val c-amber" id="res-timeline">—</div>
+          </div>
+        </div>
+        <div class="mort-grid" style="margin-bottom:0;">
+          <div class="mort-res-card">
+            <div class="mort-res-lbl">Préstamo bancario</div>
+            <div class="mort-res-val c-accent" id="res-loan">—</div>
+          </div>
+          <div class="mort-res-card">
+            <div class="mort-res-lbl">Total intereses</div>
+            <div class="mort-res-val c-red" id="res-interest">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // ══════════════════════════════════════════════════════
+    //  State
+    // ══════════════════════════════════════════════════════
+    const STORAGE_KEY = 'ahorro-marta-v1';
+
+    let S = {
+      income: 0,
+      goal: { mode: 'percent', value: 20 },
+      fixed: [
+        { id: uid(), cat: 'Alquiler / Hipoteca', amt: 0 },
+        { id: uid(), cat: 'Seguros', amt: 0 },
+        { id: uid(), cat: 'Internet y móvil', amt: 0 },
+        { id: uid(), cat: 'Suscripciones', amt: 0 },
+      ],
+      variable: [
+        { id: uid(), cat: 'Supermercado', amt: 0 },
+        { id: uid(), cat: 'Restaurantes', amt: 0 },
+        { id: uid(), cat: 'Transporte', amt: 0 },
+        { id: uid(), cat: 'Ocio', amt: 0 },
+        { id: uid(), cat: 'Ropa y salud', amt: 0 },
+      ],
+      tripPct: 30,
+      trips: [],
+      extraSavings: 0,
+      mort: { price: 0, saved: 0, dp: 30, rate: 3.5, years: 30 }
+    };
+
+    function uid() { return Math.random().toString(36).slice(2, 9); }
+
+    // ══════════════════════════════════════════════════════
+    //  Persistence
+    // ══════════════════════════════════════════════════════
+    let saveTimer;
+    function schedSave() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => localStorage.setItem(STORAGE_KEY, JSON.stringify(S)), 600);
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) S = Object.assign(S, JSON.parse(raw));
+      } catch(e) {}
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  Metrics
+    // ══════════════════════════════════════════════════════
+    function metrics() {
+      const inc = S.income || 0;
+      const fixAmt  = S.fixed.reduce((a, e) => a + (e.amt || 0), 0);
+      const varAmt  = S.variable.reduce((a, e) => a + (e.amt || 0), 0);
+      const exp = fixAmt + varAmt;
+      const available = Math.max(0, inc - exp);
+
+      let sav = S.goal.mode === 'percent'
+        ? inc * (S.goal.value || 0) / 100
+        : (S.goal.value || 0);
+      sav = Math.min(sav, available);
+
+      const free = Math.max(0, available - sav);
+      return { inc, exp, sav, free };
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  Formatting
+    // ══════════════════════════════════════════════════════
+    function fmt(n) { return Math.round(n).toLocaleString('es-ES') + ' €'; }
+
+    // ══════════════════════════════════════════════════════
+    //  Render Metrics
+    // ══════════════════════════════════════════════════════
+    function renderMetrics() {
+      const m = metrics();
+      animVal('m-income',   fmt(m.inc));
+      animVal('m-expenses', fmt(m.exp));
+      animVal('m-savings',  fmt(m.sav));
+      animVal('m-free',     fmt(m.free));
+    }
+
+    function animVal(id, val) {
+      const el = document.getElementById(id);
+      if (!el || el.textContent === val) return;
+      el.style.animation = 'none';
+      void el.offsetHeight;
+      el.style.animation = 'countUp 0.3s ease';
+      el.textContent = val;
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  Render Expenses
+    // ══════════════════════════════════════════════════════
+    function renderExpenses() {
+      renderExpList('fixed');
+      renderExpList('variable');
+    }
+
+    function renderExpList(type) {
+      const list = S[type];
+      const listEl = document.getElementById(type + '-list');
+      const totEl  = document.getElementById('total-' + type);
+      if (!listEl) return;
+
+      listEl.innerHTML = '';
+      let total = 0;
+      list.forEach(item => {
+        total += item.amt || 0;
+        const row = document.createElement('div');
+        row.className = 'expense-row';
+        row.innerHTML = `
+          <input type="text" class="category-input" value="${escHtml(item.cat)}" placeholder="Categoría"
+            oninput="updateExp('${type}','${item.id}','cat',this.value)">
+          <input type="number" class="exp-amount-input" value="${item.amt || ''}" placeholder="0"
+            inputmode="decimal" min="0"
+            oninput="updateExp('${type}','${item.id}','amt',parseFloat(this.value)||0)"
+            onfocus="if(this.value==='0')this.value=''">
+          <button class="delete-btn" onclick="delExp('${type}','${item.id}')">×</button>
+        `;
+        listEl.appendChild(row);
+      });
+      totEl.textContent = fmt(total);
+    }
+
+    function escHtml(s) {
+      return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  Render Trips
+    // ══════════════════════════════════════════════════════
+    function renderTrips() {
+      const m = metrics();
+      const budget = m.free * (S.tripPct / 100);
+      document.getElementById('trip-pct-lbl').textContent = S.tripPct + '%';
+      document.getElementById('trip-pct').value = S.tripPct;
+      document.getElementById('trip-budget-val').textContent = fmt(budget);
+
+      const container = document.getElementById('trips-list');
+      container.innerHTML = '';
+
+      if (S.trips.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">✈️</div>
+            <div class="empty-state-text">Añade tu primer destino y calcula<br>cuánto tiempo necesitas ahorrar.</div>
+          </div>`;
+        return;
+      }
+
+      const emojis = ['✈️','🏖️','🏔️','🌍','🗺️','🌅','🏛️','🌊','🗼','🏝️'];
+      S.trips.forEach(trip => {
+        const card = document.createElement('div');
+        card.className = 'trip-card';
+        const cd = getCountdown(trip.date);
+        const months = trip.budget && m.sav > 0 ? Math.ceil(trip.budget / m.sav) : null;
+        const progressPct = trip.budget > 0 ? Math.min(100, (budget / trip.budget) * 100) : 0;
+
+        card.innerHTML = `
+          <div class="trip-header">
+            <span style="font-size:22px">${trip.emoji || '✈️'}</span>
+            <input type="text" class="trip-name-input" value="${escHtml(trip.name)}" placeholder="Destino"
+              oninput="updateTrip('${trip.id}','name',this.value)">
+            <button class="trip-del" onclick="delTrip('${trip.id}')">×</button>
+          </div>
+          <div class="trip-fields">
+            <div class="trip-field">
+              <label>Presupuesto</label>
+              <input type="number" value="${trip.budget || ''}" placeholder="0" inputmode="decimal" min="0"
+                oninput="updateTrip('${trip.id}','budget',parseFloat(this.value)||0)"
+                onfocus="if(this.value==='0')this.value=''">
+            </div>
+            <div class="trip-field">
+              <label>Fecha de salida</label>
+              <input type="date" value="${trip.date || ''}"
+                onchange="updateTrip('${trip.id}','date',this.value)">
+            </div>
+          </div>
+          ${cd ? `
+          <div class="countdown">
+            <div class="cd-unit"><div class="cd-num">${cd.days}</div><div class="cd-lbl">días</div></div>
+            <div class="cd-unit"><div class="cd-num">${cd.hours}</div><div class="cd-lbl">horas</div></div>
+            <div class="cd-unit"><div class="cd-num">${cd.mins}</div><div class="cd-lbl">min</div></div>
+            <div class="cd-unit"><div class="cd-num">${cd.secs}</div><div class="cd-lbl">seg</div></div>
+          </div>` : `<div style="font-size:12px;color:var(--text-3);text-align:center;padding:6px 0;">Selecciona una fecha para ver la cuenta atrás</div>`}
+          ${trip.budget ? `
+          <div class="trip-progress-row">
+            <span>Progreso mensual</span>
+            <span style="color:var(--amber);font-weight:600">${months ? months + ' mes' + (months !== 1 ? 'es' : '') : '—'}</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width:${progressPct}%"></div>
+          </div>` : ''}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function getCountdown(dateStr) {
+      if (!dateStr) return null;
+      const diff = new Date(dateStr + 'T00:00:00') - new Date();
+      if (diff <= 0) return null;
+      return {
+        days:  Math.floor(diff / 86400000),
+        hours: Math.floor((diff % 86400000) / 3600000),
+        mins:  Math.floor((diff % 3600000) / 60000),
+        secs:  Math.floor((diff % 60000) / 1000)
+      };
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  Render Projection
+    // ══════════════════════════════════════════════════════
+    function renderProjection() {
+      const m = metrics();
+      document.getElementById('proj-monthly').textContent = fmt(m.sav) + '/mes';
+      const r = 0.03 / 12;
+
+      [1,3,5].forEach(yrs => {
+        const n = yrs * 12;
+        const fv = m.sav * ((Math.pow(1+r,n)-1)/r);
+        const principal = m.sav * n;
+        const interest = fv - principal;
+        document.getElementById(`p${yrs}y`).textContent = fmt(fv);
+        document.getElementById(`p${yrs}y-i`).textContent = '+' + fmt(interest) + ' intereses';
+      });
+
+      renderExtraProj();
+    }
+
+    function renderExtraProj() {
+      const m = metrics();
+      const monthly = m.sav + (S.extraSavings || 0);
+      const r = 0.03 / 12;
+      [1,3,5].forEach(yrs => {
+        const n = yrs * 12;
+        const fv = monthly * ((Math.pow(1+r,n)-1)/r);
+        document.getElementById(`ex${yrs}y`).textContent = fmt(fv);
+      });
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  Mortgage Calculator
+    // ══════════════════════════════════════════════════════
+    function calcMortgage() {
+      const price  = parseFloat(document.getElementById('mort-price').value) || 0;
+      const saved  = parseFloat(document.getElementById('mort-saved').value) || 0;
+      const dp     = parseFloat(document.getElementById('mort-dp').value) || 30;
+      const rate   = parseFloat(document.getElementById('mort-rate').value) || 3.5;
+      const years  = parseInt(document.getElementById('mort-years').value) || 30;
+
+      S.mort = { price, saved, dp, rate, years };
+      schedSave();
+
+      const dash = id => document.getElementById(id).textContent = '—';
+      if (!price) {
+        ['res-needed','res-missing','res-payment','res-timeline','res-loan','res-interest'].forEach(dash);
+        document.getElementById('mort-alert').innerHTML = '';
+        return;
+      }
+
+      const needed  = price * dp / 100;
+      const missing = Math.max(0, needed - saved);
+      const loan    = price - needed;
+
+      const mr = rate / 100 / 12;
+      const n  = years * 12;
+      const payment = mr > 0
+        ? loan * (mr * Math.pow(1+mr,n)) / (Math.pow(1+mr,n)-1)
+        : loan / n;
+
+      const totalPaid    = payment * n;
+      const totalInterest = totalPaid - loan;
+
+      document.getElementById('res-needed').textContent  = fmt(needed);
+      document.getElementById('res-loan').textContent    = fmt(loan);
+      document.getElementById('res-payment').textContent = fmt(payment) + '/mes';
+      document.getElementById('res-interest').textContent = fmt(totalInterest);
+
+      if (missing <= 0) {
+        document.getElementById('res-missing').textContent = '¡Ya tienes suficiente!';
+        document.getElementById('res-missing').className   = 'mort-res-val c-green';
+        document.getElementById('res-timeline').textContent = '¡Lista para comprar!';
+        document.getElementById('res-timeline').className   = 'mort-res-val c-green';
+      } else {
+        document.getElementById('res-missing').textContent = fmt(missing);
+        document.getElementById('res-missing').className   = 'mort-res-val c-red';
+
+        const m = metrics();
+        if (m.sav > 0) {
+          const mos = Math.ceil(missing / m.sav);
+          const y   = Math.floor(mos / 12);
+          const mo  = mos % 12;
+          let str = '';
+          if (y)  str += y + ' año' + (y > 1 ? 's' : '');
+          if (y && mo) str += ' y ';
+          if (mo) str += mo + ' mes' + (mo > 1 ? 'es' : '');
+          document.getElementById('res-timeline').textContent = str || '< 1 mes';
+          document.getElementById('res-timeline').className   = 'mort-res-val c-amber';
+        } else {
+          document.getElementById('res-timeline').textContent = 'Define tu ahorro';
+          document.getElementById('res-timeline').className   = 'mort-res-val c-amber';
+        }
+      }
+
+      // Alert
+      const alertEl = document.getElementById('mort-alert');
+      const m = metrics();
+      if (m.inc > 0 && payment > 0) {
+        const pct = (payment / m.inc) * 100;
+        if (pct > 40) {
+          alertEl.innerHTML = `<div class="alert-banner danger">⚠️ La cuota es el ${pct.toFixed(0)}% de tus ingresos — riesgo elevado</div>`;
+        } else if (pct > 30) {
+          alertEl.innerHTML = `<div class="alert-banner warning">📊 La cuota es el ${pct.toFixed(0)}% de tus ingresos — en el límite recomendado</div>`;
+        } else {
+          alertEl.innerHTML = `<div class="alert-banner ok">✅ La cuota es el ${pct.toFixed(0)}% de tus ingresos — dentro del rango saludable</div>`;
+        }
+      } else {
+        alertEl.innerHTML = '';
+      }
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  Event handlers
+    // ══════════════════════════════════════════════════════
+    function setGoalMode(mode) {
+      S.goal.mode = mode;
+      document.getElementById('goal-pct-btn').classList.toggle('active', mode === 'percent');
+      document.getElementById('goal-fix-btn').classList.toggle('active', mode === 'fixed');
+      if (mode === 'percent') {
+        document.getElementById('goal-lbl').textContent = 'Porcentaje a ahorrar';
+        document.getElementById('goal-sub').textContent = 'Regla 50/30/20 recomendada';
+        document.getElementById('goalValue').placeholder = '20';
+        document.getElementById('goalValue').max = '100';
+      } else {
+        document.getElementById('goal-lbl').textContent = 'Cantidad fija mensual';
+        document.getElementById('goal-sub').textContent = 'Importe fijo a guardar cada mes';
+        document.getElementById('goalValue').placeholder = '500';
+        document.getElementById('goalValue').removeAttribute('max');
+      }
+      schedSave();
+      renderAll();
+    }
+
+    function updateExp(type, id, field, val) {
+      const item = S[type].find(e => e.id === id);
+      if (item) item[field] = val;
+      if (field === 'amt') {
+        renderExpList(type);
+        renderMetrics();
+        renderExtraProj();
+      }
+      schedSave();
+    }
+
+    function addExpense(type) {
+      S[type].push({ id: uid(), cat: '', amt: 0 });
+      schedSave();
+      renderExpList(type);
+    }
+
+    function delExp(type, id) {
+      S[type] = S[type].filter(e => e.id !== id);
+      schedSave();
+      renderExpList(type);
+      renderMetrics();
+      renderExtraProj();
+    }
+
+    function onTripPct(val) {
+      S.tripPct = parseInt(val);
+      schedSave();
+      renderTrips();
+    }
+
+    function addTrip() {
+      const emojis = ['✈️','🏖️','🏔️','🌍','🗺️','🌅','🏛️','🌊','🗼','🏝️'];
+      S.trips.push({
+        id: uid(),
+        name: '',
+        budget: 0,
+        date: '',
+        emoji: emojis[Math.floor(Math.random() * emojis.length)]
+      });
+      schedSave();
+      renderTrips();
+    }
+
+    function updateTrip(id, field, val) {
+      const t = S.trips.find(t => t.id === id);
+      if (t) t[field] = val;
+      schedSave();
+      if (field !== 'name') renderTrips();
+    }
+
+    function delTrip(id) {
+      S.trips = S.trips.filter(t => t.id !== id);
+      schedSave();
+      renderTrips();
+    }
+
+    function onMortDp(val) {
+      document.getElementById('mort-dp-lbl').textContent = val + '%';
+      calcMortgage();
+    }
+
+    function onExtra(val) {
+      S.extraSavings = parseInt(val) || 0;
+      document.getElementById('extra-lbl').textContent = '+' + fmt(S.extraSavings);
+      schedSave();
+      renderExtraProj();
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  Tab navigation
+    // ══════════════════════════════════════════════════════
+    function showTab(name, btn) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      btn.classList.add('active');
+      if (name === 'proyeccion') renderProjection();
+      if (name === 'hipoteca')   calcMortgage();
+      if (name === 'viajes')     renderTrips();
+    }
+
+    function setExpTab(type) {
+      document.getElementById('fixed-panel').style.display    = type === 'fixed'    ? '' : 'none';
+      document.getElementById('variable-panel').style.display = type === 'variable' ? '' : 'none';
+      document.getElementById('seg-fixed').classList.toggle('active', type === 'fixed');
+      document.getElementById('seg-var').classList.toggle('active',   type === 'variable');
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  Render all
+    // ══════════════════════════════════════════════════════
+    function renderAll() {
+      renderMetrics();
+      renderExpenses();
+      renderTrips();
+      renderProjection();
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  Date widget
+    // ══════════════════════════════════════════════════════
+    function updateDate() {
+      const d = new Date();
+      const months = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+      document.getElementById('dateMonth').textContent = months[d.getMonth()];
+      document.getElementById('dateDay').textContent   = d.getDate();
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  Header compact on scroll
+    // ══════════════════════════════════════════════════════
+    document.getElementById('mainContent').addEventListener('scroll', function() {
+      document.getElementById('mainHeader').classList.toggle('compact', this.scrollTop > 20);
+    });
+
+    // ══════════════════════════════════════════════════════
+    //  Init
+    // ══════════════════════════════════════════════════════
+    function init() {
+      loadState();
+      updateDate();
+
+      // Income
+      const incEl = document.getElementById('income');
+      incEl.value = S.income || '';
+      incEl.addEventListener('input', e => {
+        S.income = parseFloat(e.target.value) || 0;
+        schedSave();
+        renderMetrics();
+        renderExtraProj();
+        renderTrips();
+        calcMortgage();
+      });
+      incEl.addEventListener('focus', () => { if (incEl.value === '0') incEl.value = ''; });
+
+      // Goal value
+      const goalEl = document.getElementById('goalValue');
+      goalEl.value = S.goal.value || '';
+      goalEl.addEventListener('input', e => {
+        S.goal.value = parseFloat(e.target.value) || 0;
+        schedSave();
+        renderMetrics();
+        renderExtraProj();
+      });
+      goalEl.addEventListener('focus', () => { if (goalEl.value === '0') goalEl.value = ''; });
+      setGoalMode(S.goal.mode);
+
+      // Mortgage restore
+      if (S.mort.price)  document.getElementById('mort-price').value  = S.mort.price;
+      if (S.mort.saved)  document.getElementById('mort-saved').value  = S.mort.saved;
+      document.getElementById('mort-dp').value    = S.mort.dp   || 30;
+      document.getElementById('mort-dp-lbl').textContent = (S.mort.dp || 30) + '%';
+      document.getElementById('mort-rate').value  = S.mort.rate || 3.5;
+      document.getElementById('mort-years').value = S.mort.years || 30;
+
+      // Extra savings restore
+      if (S.extraSavings) {
+        document.getElementById('extra-range').value = S.extraSavings;
+        document.getElementById('extra-lbl').textContent = '+' + fmt(S.extraSavings);
+      }
+
+      renderAll();
+      calcMortgage();
+
+      // Countdown tick
+      setInterval(() => {
+        if (document.getElementById('tab-viajes').classList.contains('active')) renderTrips();
+      }, 1000);
+
+      // Fix inputmode for dynamically added inputs
+      new MutationObserver(mutations => {
+        mutations.forEach(m => m.addedNodes.forEach(node => {
+          if (node.querySelectorAll) {
+            node.querySelectorAll('input[type=number]').forEach(inp => {
+              inp.setAttribute('inputmode', 'decimal');
+              inp.addEventListener('focus', () => { if (inp.value === '0') inp.value = ''; });
+            });
+          }
+        }));
+      }).observe(document.body, { childList: true, subtree: true });
+    }
+
+    init();
+  </script>
+</body>
+</html>
