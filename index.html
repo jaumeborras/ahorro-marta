@@ -4,6 +4,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Ahorro · Marta</title>
+  <link rel="apple-touch-icon" id="app-touch-icon" sizes="180x180" href="">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Ahorro Marta">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <script>
+    (function(){
+      const c = document.createElement('canvas');
+      c.width = c.height = 180;
+      const ctx = c.getContext('2d');
+      // Fondo degradado morado
+      const g = ctx.createLinearGradient(0, 0, 180, 180);
+      g.addColorStop(0, '#8B6FFF');
+      g.addColorStop(1, '#5B3DD4');
+      ctx.fillStyle = g;
+      const r = 36;
+      ctx.beginPath();
+      ctx.moveTo(r, 0);
+      ctx.lineTo(180-r, 0);
+      ctx.arcTo(180, 0, 180, r, r);
+      ctx.lineTo(180, 180-r);
+      ctx.arcTo(180, 180, 180-r, 180, r);
+      ctx.lineTo(r, 180);
+      ctx.arcTo(0, 180, 0, 180-r, r);
+      ctx.lineTo(0, r);
+      ctx.arcTo(0, 0, r, 0, r);
+      ctx.closePath();
+      ctx.fill();
+      // Emoji chica
+      ctx.font = '108px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('👩', 90, 96);
+      const link = document.getElementById('app-touch-icon');
+      if (link) link.href = c.toDataURL('image/png');
+    })();
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
